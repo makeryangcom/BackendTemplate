@@ -18,29 +18,27 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/backend/template/cmd/command"
-	"github.com/backend/template/package/config"
-	"github.com/backend/template/package/version"
+	"github.com/makeryangcom/backend/cmd/command"
+	"github.com/makeryangcom/backend/pkg/version"
 	"github.com/spf13/cobra"
 )
 
 func main() {
 
-	version.Get = version.New()
-
-	config.Get = config.New()
+	Version := version.New()
 
 	cmd := &cobra.Command{
-		Use:   version.Get.Name,
-		Short: version.Get.Describe,
-		Long:  fmt.Sprintf("%s - %s %s (%s)", version.Get.Name, version.Get.Describe, version.Get.Version, version.Get.Site),
+		Use:   Version.Name,
+		Short: Version.Describe,
+		Long:  fmt.Sprintf("%s - %s %s (%s)", Version.Name, Version.Describe, Version.Version, Version.Site),
 	}
 
+	cmd.CompletionOptions.DisableDefaultCmd = true
 	cmd.CompletionOptions.HiddenDefaultCmd = true
 
-	cmd.AddCommand(command.Service())
-
 	cmd.AddCommand(command.Version())
+
+	cmd.AddCommand(command.Service())
 
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)

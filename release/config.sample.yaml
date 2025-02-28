@@ -1,6 +1,6 @@
 server:
     mode: debug # debug or release
-    port: 18080
+    port: 8090
     read_timeout: 60s
     write_timeout: 60s
 database:
@@ -9,20 +9,6 @@ database:
     name: platform
     user: root
     password: test
-cdn:
-    all: https://cdn.domain.com
 hash:
     salt: 
     alphabet: ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789
-mail:
-    smtp: smtp.qq.com
-    port: 587
-    name: 
-    address: 
-    password: 
-referer:
-    domain:
-        - domain.com
-auth:
-    secret: 
-    expiration: 24

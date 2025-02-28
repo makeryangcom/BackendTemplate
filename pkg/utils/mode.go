@@ -1,4 +1,4 @@
-// Copyright 2024 ARMCNC, Inc.
+// Copyright 2024 MakerYang, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package handler
+package utils
 
 import (
-	"github.com/backend/template/utils"
-	"github.com/gin-gonic/gin"
+	"os"
+	"strings"
 )
 
-func Health(c *gin.Context) {
-	utils.Success(c, utils.EmptyData{})
+func CheckDevMode() bool {
+	mode := false
+	if strings.HasPrefix(os.Args[0], os.TempDir()) {
+		mode = true
+	}
+	return mode
 }

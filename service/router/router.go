@@ -1,4 +1,4 @@
-// Copyright 2024 ARMCNC, Inc.
+// Copyright 2024 MakerYang, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 package router
 
 import (
-	"github.com/backend/template/service/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -25,30 +24,35 @@ type Router struct {
 }
 
 func New() *Router {
+
 	return &Router{}
 }
 
-func (r *Router) Init(mode string) *Router {
-	gin.SetMode(mode)
-	r.engine = gin.New()
-	r.engine.Use(gin.Recovery())
-	r.engine.Use(cors.Default())
-	r.engine.Use(r.AuthMiddleware())
-	return r
-}
+func (router *Router) Authentication() gin.HandlerFunc {
 
-func (r *Router) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 	}
 }
 
-func (r *Router) InitHandler() *gin.Engine {
-	r.engine.GET("/", handler.Index)
-	r.engine.GET("/health", handler.Health)
-	message := r.engine.Group("/message")
-	{
-		message.GET("/index", handler.MessageIndex)
-	}
-	return r.engine
+func (router *Router) Initialization(mode string) *Router {
+
+	gin.SetMode(mode)
+
+	router.engine = gin.New()
+	router.engine.Use(gin.Recovery())
+	router.engine.Use(cors.Default())
+	router.engine.Use(router.Authentication())
+
+	return router
+}
+
+func (router *Router) Handler() *gin.Engine {
+	router.FrontendHandler()
+	return router.engine
+}
+
+func (router *Router) FrontendHandler() *gin.Engine {
+
+	return router.engine
 }

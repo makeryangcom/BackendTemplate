@@ -1,4 +1,4 @@
-// Copyright 2024 ARMCNC, Inc.
+// Copyright 2024 MakerYang, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package utils
+package version
 
-type EmptyData struct{}
+var Get = &Version{}
+
+type Version struct {
+	Name     string
+	Describe string
+	Site     string
+	Version  string
+}
+
+func New() *Version {
+	return &Version{
+		Name:     "backend",
+		Describe: "Backend Template",
+		Site:     "https://github.com/makeryangcom",
+		Version:  "0.0.1",
+	}
+}

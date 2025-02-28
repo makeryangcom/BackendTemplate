@@ -2,3 +2,5 @@
 .DS*
 .git
 .vscode
+release/*
+!release/config.sample.yaml

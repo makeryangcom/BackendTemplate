@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/backend/template/package/version"
 	"github.com/gookit/color"
+	"github.com/makeryangcom/backend/pkg/version"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +28,7 @@ func Version() *cobra.Command {
 		Use:     "version",
 		Short:   "Get version number",
 		Long:    "Get version number",
-		Example: "armcnc version",
+		Example: "geekros version",
 		Run:     versionRun,
 	}
 	return command

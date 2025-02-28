@@ -15,9 +15,12 @@
 package command
 
 import (
-	"github.com/backend/template/service"
-	"github.com/backend/template/service/crontab"
-	"github.com/backend/template/service/database"
+	"log"
+
+	"github.com/gookit/color"
+	"github.com/makeryangcom/backend/config"
+	"github.com/makeryangcom/backend/pkg/version"
+	"github.com/makeryangcom/backend/service"
 	"github.com/spf13/cobra"
 )
 
@@ -26,15 +29,24 @@ func Service() *cobra.Command {
 		Use:     "service",
 		Short:   "Start service module",
 		Long:    "Start service module",
-		Example: "armcnc service",
+		Example: "geekros service",
 		Run:     serviceRun,
 	}
 	return command
 }
 
 func serviceRun(cmd *cobra.Command, args []string) {
+
+	log.Println(color.Gray.Text("[command]"), color.Gray.Text("serviceRun"))
+
+	version.Get = version.New()
+
+	config.Get = config.New().LoadConfig()
+
 	service.Get = service.New()
-	database.Get = database.New().Init()
-	crontab.Get = crontab.New().Start()
-	service.Get.Start()
+	service.Get.Start(func() {
+		log.Println(color.Gray.Text("[command]"), color.Gray.Text("serviceRun"), color.Gray.Text("callback"))
+	}, func() {
+		log.Println(color.Gray.Text("[command]"), color.Gray.Text("serviceRun"), color.Gray.Text("exit"))
+	})
 }

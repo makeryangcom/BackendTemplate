@@ -1,4 +1,4 @@
-// Copyright 2024 GEEKROS, Inc.
+// Copyright 2024 MakerYang, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,10 +19,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/backend/template/package/config"
 	"github.com/gookit/color"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/makeryangcom/backend/config"
 )
 
 var Get = &Database{}

@@ -1,4 +1,4 @@
-// Copyright 2024 ARMCNC, Inc.
+// Copyright 2024 MakerYang, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,20 +19,18 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/makeryangcom/backend/pkg/utils"
 	"gopkg.in/yaml.v3"
 )
 
 var Get = &Config{}
 
 type Config struct {
-	Path     string   `yaml:"path"`
-	Server   service  `yaml:"server"`
-	Database database `yaml:"database"`
-	Cdn      cdn      `yaml:"cdn"`
-	Hash     hash     `yaml:"hash"`
-	Mail     mail     `yaml:"mail"`
-	Referer  referer  `yaml:"referer"`
-	Auth     auth     `yaml:"auth"`
+	Path      string   `yaml:"-"`
+	Workspace string   `yaml:"-"`
+	Runtime   string   `yaml:"-"`
+	Server    service  `yaml:"server"`
+	Database  database `yaml:"database"`
 }
 
 type service struct {
@@ -50,53 +48,53 @@ type database struct {
 	Password string `yaml:"password"`
 }
 
-type cdn struct {
-	All string `yaml:"all"`
-}
-
-type hash struct {
-	Salt     string `yaml:"salt"`
-	Alphabet string `yaml:"alphabet"`
-}
-
-type mail struct {
-	Smtp     string `yaml:"smtp"`
-	Port     int    `yaml:"port"`
-	Name     string `yaml:"name"`
-	Address  string `yaml:"address"`
-	Password string `yaml:"password"`
-}
-
-type referer struct {
-	Domain []string `yaml:"domain"`
-}
-
-type auth struct {
-	Secret     string `yaml:"secret"`
-	Expiration int    `yaml:"expiration"`
-}
-
 func New() *Config {
 
-	configPath := os.Getenv("BACKEND_CONFIG_PATH")
-	if configPath == "" {
-		configPath = filepath.Join("../release/", "config.sample.yaml")
+	workspace := "/opt/geekros"
+
+	if utils.CheckDevMode() {
+		workspace = ".."
 	}
 
-	return &Config{Path: configPath}
+	configPath := filepath.Join(workspace, "/release/config.sample.yaml")
+
+	return &Config{
+		Path:      configPath,
+		Workspace: workspace,
+		Runtime:   filepath.Join(workspace, "/runtime"),
+	}
 }
 
-func (c *Config) LoadConfig() *Config {
+func (config *Config) LoadConfig() *Config {
 
-	file, err := os.ReadFile(c.Path)
-	if err != nil {
-		return c
+	if _, err := os.Stat(config.Path); os.IsNotExist(err) {
+		config.Server.Mode = "debug"
 	}
 
-	err = yaml.Unmarshal(file, c)
+	file, err := os.ReadFile(config.Path)
 	if err != nil {
-		return c
+		return config
 	}
 
-	return c
+	err = yaml.Unmarshal(file, config)
+	if err != nil {
+		return config
+	}
+
+	return config
+}
+
+func (c *Config) UpdateConfig() error {
+
+	data, err := yaml.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(c.Path, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

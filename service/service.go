@@ -1,4 +1,4 @@
-// Copyright 2024 ARMCNC, Inc.
+// Copyright 2024 MakerYang, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/backend/template/package/config"
-	"github.com/backend/template/service/router"
 	"github.com/gookit/color"
+	"github.com/makeryangcom/backend/config"
+	"github.com/makeryangcom/backend/service/router"
 )
 
 var Get = &Service{}
@@ -42,10 +42,11 @@ func New() *Service {
 	}
 }
 
-func (s *Service) Start() {
+func (s *Service) Start(callback func(), exit func()) {
+
 	s.HttpServer = &http.Server{
 		Addr:           fmt.Sprintf(":%d", config.Get.Server.Port),
-		Handler:        s.Router.Init(config.Get.Server.Mode).InitHandler(),
+		Handler:        s.Router.Initialization(config.Get.Server.Mode).Handler(),
 		ReadTimeout:    config.Get.Server.ReadTimeout * time.Second,
 		WriteTimeout:   config.Get.Server.WriteTimeout * time.Second,
 		MaxHeaderBytes: 1 << 20,
@@ -53,18 +54,22 @@ func (s *Service) Start() {
 
 	go func() {
 		if err := s.HttpServer.ListenAndServe(); err != nil {
-			log.Println(color.Yellow.Text(fmt.Sprintf("%v", err)))
+			log.Println(color.Yellow.Text("[service]"), color.Yellow.Text(fmt.Sprintf("%v", err)))
 		}
 	}()
 
-	quit := make(chan os.Signal)
+	callback()
+
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
+
+	exit()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := s.HttpServer.Shutdown(ctx); err != nil {
-		log.Println(color.Gray.Text(fmt.Sprintf("%v", err)))
+		log.Println(color.Gray.Text("[service]"), color.Gray.Text(fmt.Sprintf("%v", err)))
 	}
 }
