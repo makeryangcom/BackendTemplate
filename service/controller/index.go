@@ -12,4 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package model
+package controller
+
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/makeryangcom/backend/pkg/utils"
+	"github.com/makeryangcom/backend/pkg/version"
+)
+
+type responseIndex struct {
+	Name     string `json:"name"`
+	Version  string `json:"version"`
+	Describe string `json:"describe"`
+}
+
+func Index(c *gin.Context) {
+
+	returnData := responseIndex{}
+
+	returnData.Name = version.Get.Name
+	returnData.Version = version.Get.Version
+	returnData.Describe = version.Get.Describe
+
+	utils.Success(c, returnData)
+	return
+}

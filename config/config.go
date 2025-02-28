@@ -17,9 +17,9 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
-	"github.com/makeryangcom/backend/pkg/utils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -30,7 +30,13 @@ type Config struct {
 	Workspace string   `yaml:"-"`
 	Runtime   string   `yaml:"-"`
 	Server    service  `yaml:"server"`
+	Frontend  frontend `yaml:"frontend"`
 	Database  database `yaml:"database"`
+	Hash      hash     `yaml:"hash"`
+}
+
+type frontend struct {
+	Path string `yaml:"path"`
 }
 
 type service struct {
@@ -48,12 +54,17 @@ type database struct {
 	Password string `yaml:"password"`
 }
 
+type hash struct {
+	Salt     string `yaml:"salt"`
+	Alphabet string `yaml:"alphabet"`
+}
+
 func New() *Config {
 
-	workspace := "/opt/geekros"
+	workspace := "/opt/backend"
 
-	if utils.CheckDevMode() {
-		workspace = ".."
+	if CheckDevMode() {
+		workspace, _ = os.Getwd()
 	}
 
 	configPath := filepath.Join(workspace, "/release/config.sample.yaml")
@@ -69,6 +80,22 @@ func (config *Config) LoadConfig() *Config {
 
 	if _, err := os.Stat(config.Path); os.IsNotExist(err) {
 		config.Server.Mode = "debug"
+		config.Server.Port = 8090
+		config.Server.ReadTimeout = 60 * time.Second
+		config.Server.WriteTimeout = 60 * time.Second
+
+		config.Frontend.Path = "/opt/frontend"
+
+		config.Database.Type = "mysql"
+		config.Database.Host = "127.0.0.1"
+		config.Database.Name = "example"
+		config.Database.User = "root"
+		config.Database.Password = "example"
+
+		config.Hash.Salt = "example"
+		config.Hash.Alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789"
+
+		config.UpdateConfig()
 	}
 
 	file, err := os.ReadFile(config.Path)
@@ -79,6 +106,10 @@ func (config *Config) LoadConfig() *Config {
 	err = yaml.Unmarshal(file, config)
 	if err != nil {
 		return config
+	}
+
+	if config.Frontend.Path == "" {
+		config.Frontend.Path = "/opt/frontend"
 	}
 
 	return config
@@ -97,4 +128,12 @@ func (c *Config) UpdateConfig() error {
 	}
 
 	return nil
+}
+
+func CheckDevMode() bool {
+	mode := false
+	if strings.HasPrefix(os.Args[0], os.TempDir()) {
+		mode = true
+	}
+	return mode
 }

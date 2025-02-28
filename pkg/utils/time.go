@@ -15,14 +15,23 @@
 package utils
 
 import (
-	"os"
-	"strings"
+	"fmt"
+	"time"
 )
 
-func CheckDevMode() bool {
-	mode := false
-	if strings.HasPrefix(os.Args[0], os.TempDir()) {
-		mode = true
+func CalculateRequestDuration(clientTime int64) (float64, error) {
+	clientTimeObj := time.Unix(0, clientTime*int64(time.Millisecond))
+
+	now := time.Now()
+
+	duration := now.Sub(clientTimeObj)
+
+	if duration < 0 {
+		return 0, fmt.Errorf("client time is later than server time, clocks may be out of sync")
 	}
-	return mode
+
+	durationMs := float64(duration.Nanoseconds()) / float64(time.Millisecond)
+	roundedDurationMs := float64(int(durationMs*100)) / 100
+
+	return roundedDurationMs, nil
 }

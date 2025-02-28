@@ -15,8 +15,14 @@
 package router
 
 import (
+	"log"
+	"path/filepath"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gookit/color"
+	"github.com/makeryangcom/backend/config"
+	"github.com/makeryangcom/backend/service/controller"
 )
 
 type Router struct {
@@ -49,10 +55,32 @@ func (router *Router) Initialization(mode string) *Router {
 
 func (router *Router) Handler() *gin.Engine {
 	router.FrontendHandler()
+
+	log.Println(color.Gray.Text("[router]"), color.Gray.Text("handler"))
+
+	router.engine.GET("/index", controller.Index)
+
 	return router.engine
 }
 
 func (router *Router) FrontendHandler() *gin.Engine {
+
+	log.Println(color.Gray.Text("[router]"), color.Gray.Text("frontend handler"))
+
+	basePath := filepath.Join(config.Get.Frontend.Path, "/release")
+
+	staticDirs := []string{"assets", "images", "locales", "videos"}
+	for _, dir := range staticDirs {
+		router.engine.Static("/"+dir, filepath.Join(basePath, dir))
+	}
+
+	router.engine.GET("/icon.svg", func(c *gin.Context) {
+		c.File(filepath.Join(basePath, "/release/icon.svg"))
+	})
+
+	router.engine.GET("/", func(c *gin.Context) {
+		c.File(filepath.Join(basePath, "/release/index.html"))
+	})
 
 	return router.engine
 }

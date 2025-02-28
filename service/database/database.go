@@ -22,6 +22,8 @@ import (
 	"github.com/gookit/color"
 	"github.com/jinzhu/gorm"
 	"github.com/makeryangcom/backend/config"
+
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 var Get = &Database{}
@@ -41,7 +43,7 @@ func New() *Database {
 	return &Database{}
 }
 
-func (d *Database) Init() *Database {
+func (d *Database) Initialization() *Database {
 
 	var err error
 
@@ -56,7 +58,7 @@ func (d *Database) Init() *Database {
 		),
 	)
 	if err != nil {
-		log.Println(color.Red.Text(err.Error()))
+		log.Println(color.Red.Text("[database]"), color.Red.Text(err.Error()))
 	}
 
 	if config.Get.Server.Mode == "release" {

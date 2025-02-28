@@ -21,6 +21,7 @@ import (
 	"github.com/makeryangcom/backend/config"
 	"github.com/makeryangcom/backend/pkg/version"
 	"github.com/makeryangcom/backend/service"
+	"github.com/makeryangcom/backend/service/database"
 	"github.com/spf13/cobra"
 )
 
@@ -46,6 +47,7 @@ func serviceRun(cmd *cobra.Command, args []string) {
 	service.Get = service.New()
 	service.Get.Start(func() {
 		log.Println(color.Gray.Text("[command]"), color.Gray.Text("serviceRun"), color.Gray.Text("callback"))
+		database.Get = database.New().Initialization()
 	}, func() {
 		log.Println(color.Gray.Text("[command]"), color.Gray.Text("serviceRun"), color.Gray.Text("exit"))
 	})
